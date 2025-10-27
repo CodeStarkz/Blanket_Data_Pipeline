@@ -1,0 +1,9 @@
+{
+	"name": "ingestion_pipeline",
+	"properties": {
+		"folder": {
+			"name": "Blinkit_pipeline"
+		},
+		"annotations": []
+	}
+}
