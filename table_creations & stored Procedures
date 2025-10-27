@@ -1,0 +1,88 @@
+--  Blinkit_Sale
+
+CREATE TABLE Blinkit_Sale (
+    Item_Fat_Content VARCHAR(200),
+    Item_Identifier VARCHAR(200),
+    Item_Type VARCHAR(200),
+    Outlet_Establishment_Year DATE,
+    Outlet_Identifier VARCHAR(200),
+    Outlet_Location_Type VARCHAR(200),
+    Outlet_Size VARCHAR(200),
+    Outlet_Type VARCHAR(200),
+    Item_Visibility FLOAT,
+    Item_Weight FLOAT,
+    Sales FLOAT,
+    Rating FLOAT
+);
+
+-- csv_audit_log
+
+CREATE TABLE csv_audit_log (
+    audit_id              INT IDENTITY(1,1) PRIMARY KEY,       -- Unique ID for each audit entry
+    file_name             VARCHAR(255) NOT NULL,               -- CSV file name
+    file_path             VARCHAR(500) NULL,                   -- Full path if applicable (Blob/File path)
+    file_size_bytes       BIGINT NULL,                         -- Optional: File size
+    rows_processed        INT NULL,                            -- Number of records ingested
+    status                VARCHAR(50) NOT NULL,                -- e.g., 'Success', 'Failed', 'InProgress'
+    process_start_time    DATETIME2 NOT NULL DEFAULT SYSDATETIME(), -- When processing started
+    process_end_time      DATETIME2 NULL,                      -- When processing finished
+    processed_by          VARCHAR(100) NULL,                   -- User, service principal, or ADF pipeline name
+    error_message         VARCHAR(MAX) NULL,                   -- In case of failure
+    checksum_hash         VARCHAR(128) NULL,                   -- Optional: MD5/SHA1 hash to detect reprocessing of same file
+    load_layer            VARCHAR(50) NULL,                    -- e.g., 'Bronze', 'Silver', 'Gold'
+    remarks               VARCHAR(500) NULL,                   -- Free text comments
+    inserted_at           DATETIME2 NOT NULL DEFAULT SYSDATETIME() -- Record inserted timestamp
+);
+
+-- Stored Procedures 
+
+CREATE PROCEDURE usp_InsertCsvAuditLog
+    @file_name NVARCHAR(255),
+    @file_path NVARCHAR(500),
+    @file_size_bytes BIGINT,
+    @rows_processed INT = NULL,
+    @status NVARCHAR(50),
+    @processed_by NVARCHAR(100),
+    @load_layer NVARCHAR(50),
+    @error_message NVARCHAR(MAX) = NULL,
+    @checksum_hash NVARCHAR(128) = NULL,
+    @remarks NVARCHAR(500) = NULL
+AS
+BEGIN
+    INSERT INTO csv_audit_log (
+        file_name, file_path, file_size_bytes, rows_processed, status,
+        process_start_time, processed_by, load_layer, error_message,
+        checksum_hash, remarks
+    )
+    VALUES (
+        @file_name, @file_path, @file_size_bytes, @rows_processed, @status,
+        SYSDATETIME(), @processed_by, @load_layer, @error_message,
+        @checksum_hash, @remarks
+    );
+END;
+
+
+CREATE PROCEDURE usp_UpdateCsvAuditLog
+    @file_name NVARCHAR(255),
+    @status NVARCHAR(50),
+    @rows_processed INT = NULL,
+    @error_message NVARCHAR(MAX) = NULL,
+    @remarks NVARCHAR(500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE csv_audit_log
+    SET 
+        status = @status,
+        rows_processed = @rows_processed,
+        error_message = @error_message,
+        remarks = @remarks,
+        process_end_time = SYSDATETIME()
+    WHERE file_name = @file_name
+      AND status = 'InProgress';
+END;
+
+
+
+
