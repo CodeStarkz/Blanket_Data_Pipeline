@@ -1,0 +1,74 @@
+{
+	"name": "ds_to_fetch_blinkit_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blinkit_source",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DS_Blinkit"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "silver"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "index",
+				"type": "String"
+			},
+			{
+				"name": "airline",
+				"type": "String"
+			},
+			{
+				"name": "flight",
+				"type": "String"
+			},
+			{
+				"name": "source_city",
+				"type": "String"
+			},
+			{
+				"name": "departure_time",
+				"type": "String"
+			},
+			{
+				"name": "stops",
+				"type": "String"
+			},
+			{
+				"name": "arrival_time",
+				"type": "String"
+			},
+			{
+				"name": "destination_city",
+				"type": "String"
+			},
+			{
+				"name": "class",
+				"type": "String"
+			},
+			{
+				"name": "duration",
+				"type": "String"
+			},
+			{
+				"name": "days_left",
+				"type": "String"
+			},
+			{
+				"name": "price",
+				"type": "String"
+			}
+		]
+	}
+}
